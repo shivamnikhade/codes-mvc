@@ -1,0 +1,4 @@
+select user.name,role.name from user 
+inner join role
+on user.role_id=role.id
+order by user.name asc;

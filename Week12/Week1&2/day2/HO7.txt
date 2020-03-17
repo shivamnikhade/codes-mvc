@@ -1,0 +1,2 @@
+delete from user where role_id ='2';
+delete from role where id='2';

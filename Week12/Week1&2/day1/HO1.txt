@@ -1,0 +1,5 @@
+CREATE TABLE employee(
+ID INT AUTO_INCREMENT PRIMARY KEY,
+first_name VARCHAR(20),
+Designation VARCHAR(20) 
+);

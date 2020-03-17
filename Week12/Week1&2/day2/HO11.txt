@@ -1,0 +1,2 @@
+SELECT u.name, COUNT(e.id) as event_count FROM user as u, event as e WHERE u.id = e.organiser_id GROUP BY u.name HAVING
+COUNT(e.organiser_id) >= 1 ORDER BY u.name;

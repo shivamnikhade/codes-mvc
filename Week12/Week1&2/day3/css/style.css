@@ -1,0 +1,15 @@
+tr{
+    text-align: left;
+}
+td,th{
+    padding: 5px;
+  
+}
+fieldset{
+    padding: 5px;
+    background-color: chocolate;
+    width: 50%;
+}
+input,textarea,select{
+    background-color: darksalmon;
+}

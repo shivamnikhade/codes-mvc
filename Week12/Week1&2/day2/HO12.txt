@@ -1,0 +1,1 @@
+1. select role.name,count(*) as role_count from user inner join role on user.role_id=role.id where user.role_id is not null group by user.role_id order by role.name;

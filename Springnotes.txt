@@ -1,0 +1,11 @@
+Spring 
+1) List allow duplicates whereas set does not allow duplicates.
+2) Provides 2 methods to every methods
+   1. public void init()
+   2. public void destroy()
+3) Bean Scopes
+     Singleton
+     Prototype
+     request
+     session
+     globalsession

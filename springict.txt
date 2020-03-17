@@ -1,0 +1,358 @@
+package com;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication(scanBasePackages = { "com.controller", "com.model", "com.service" })
+public class TmsApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(TmsApplication.class, args);
+	}
+
+}
+
+
+
+
+
+
+package com.controller;
+
+import java.util.Locale;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+
+@Configuration
+public class InternationalizationConfig extends WebMvcConfigurerAdapter {
+
+//Create a SessionLocaleResolver object and set the default locale to English  return the SessionLocaleResolver object  
+	@Bean
+	public LocaleResolver localeResolver() {
+		SessionLocaleResolver r = new SessionLocaleResolver();
+		r.setDefaultLocale(Locale.US);
+		return r;
+	}
+
+	// Create LocaleChangeInterceptor object and set the parameter name as language
+	// and return the localeChangeInterceptor
+	@Bean
+	public LocaleChangeInterceptor localeChangeInterceptor() {
+		LocaleChangeInterceptor localeChangeInterceptor = new LocaleChangeInterceptor();
+		localeChangeInterceptor.setParamName("language");
+		return localeChangeInterceptor;
+
+	}
+
+	// register the LocaleChangeInterceptor
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(localeChangeInterceptor());
+	}
+}
+
+
+
+
+
+package com.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.model.UserClaim;
+import com.service.TaxService;
+
+@Controller
+public class TaxController {
+	
+	@Autowired
+	private TaxService taxService;
+	
+	@RequestMapping(value = "/getTaxClaimFormPage", method = RequestMethod.GET)
+	public String discountPage(@ModelAttribute("userClaim") UserClaim userClaim) {
+		userClaim = new UserClaim();
+
+		return "taxclaim";
+	}
+	
+	@RequestMapping(value = "/calculateTax", method = RequestMethod.GET)
+	public String calculateTax(@ModelAttribute("userClaim") @Valid UserClaim userClaim, BindingResult result,ModelMap map) {
+		
+		if (result.hasErrors()) {
+			return "taxclaim";
+		}
+		
+		double totalTax = taxService.calculateTax(userClaim);
+		map.addAttribute("taxClaimAmount", totalTax);
+		
+		map.addAttribute("expenseType",userClaim.getExpenseType());
+		map.addAttribute("expenseAmount", userClaim.getExpenseAmt());
+		
+		return "result";
+	}
+	
+	@ModelAttribute("expenseList")
+	public List<String> populateExpense() {
+
+		List<String> expenseList = new ArrayList<String>();
+		expenseList.add("MedicalExpense");
+		expenseList.add("TravelExpense");
+		expenseList.add("FoodExpense");
+
+		return expenseList;
+	}
+	
+}
+
+
+
+
+
+
+package com.model;
+
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class UserClaim {
+	
+	private String expenseType;
+	
+	@NotNull(message = "{error.expenseAmount}")
+	@DecimalMin(value = "0.0", message = "{error.expenseAmount.negative}")
+	private double expenseAmt;
+	
+	@NotEmpty(message = "{error.employeeId}")
+	private String employeeId;
+	
+
+	public String getExpenseType() {
+		return expenseType;
+	}
+	public void setExpenseType(String expenseType) {
+		this.expenseType = expenseType;
+	}
+	
+	public double getExpenseAmt() {
+		return expenseAmt;
+	}
+	public void setExpenseAmt(double expenseAmt) {
+		this.expenseAmt = expenseAmt;
+	}
+
+	public String getEmployeeId() {
+		return employeeId;
+	}
+	public void setEmployeeId(String employeeId) {
+		this.employeeId = employeeId;
+	}
+	
+}
+
+
+
+
+
+
+package com.service;
+import org.springframework.stereotype.Service;
+
+import com.model.UserClaim;
+
+@Service
+public interface TaxService {
+	
+	public double calculateTax(UserClaim userClaim);
+
+}
+
+
+
+
+
+
+package com.service;
+
+import org.springframework.stereotype.Service;
+
+import com.model.UserClaim;
+
+@Service
+public class TaxServiceImpl implements TaxService{
+
+	@Override
+	public double calculateTax(UserClaim userClaim) {
+		
+		String expenseType = userClaim.getExpenseType();
+		double expense = userClaim.getExpenseAmt();
+		double taxPercent = 0.0;
+		
+		if(expenseType.equalsIgnoreCase("MedicalExpense")) {
+			if(expense>=0 && expense<=1000) {
+				taxPercent = 15;
+			}
+			else if(expense>=1001 && expense<=10000) {
+				taxPercent = 20;
+			}
+			else if(expense>10000) {
+				taxPercent = 25;
+			}
+		}
+		else if(expenseType.equalsIgnoreCase("TravelExpense")) {
+			if(expense>=0 && expense<=1000) {
+				taxPercent = 10;
+			}
+			else if(expense>=1001 && expense<=10000) {
+				taxPercent = 15;
+			}
+			else if(expense>10000) {
+				taxPercent = 20;
+			}
+		}
+		else if(expenseType.equalsIgnoreCase("FoodExpense")){
+			if(expense>=0 && expense<=1000) {
+				taxPercent = 5;
+			}
+			else if(expense>=1001 && expense<=10000) {
+				taxPercent = 10;
+			}
+			else if(expense>10000) {
+				taxPercent = 15;
+			}
+		}
+				
+		//Tax claim amount = Expense amount * (Tax percentage /100)
+		double totalTax = expense * (taxPercent/100) ; 
+		
+		return totalTax;
+	}
+
+}
+
+
+
+
+
+
+#Do not edit the key server.port.Port number can be changed
+#include other needed configurations
+server.port=9095
+spring.mvc.view.prefix = /WEB-INF/jsp/
+spring.mvc.view.suffix = .jsp
+spring.mvc.static-path-pattern=/resources/**
+
+
+
+
+
+
+
+
+// RESULT.JSP
+
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://w...content-available-to-author-only...3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Result</title>
+</head>
+<body>
+
+<h2>The tax claim for ${expenseType} with expense amount ${expenseAmount} is ${taxClaimAmount} </h2>
+
+</body>
+</html>
+
+
+
+
+
+
+// TAXCLAIM.JSP
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1" isELIgnored="false"%>
+<%@ taglib prefix="spring" uri="http://w...content-available-to-author-only...k.org/tags"%>
+<%@ taglib prefix="form" uri="http://w...content-available-to-author-only...k.org/tags/form"%>
+<%@ taglib uri="http://w...content-available-to-author-only...k.org/tags/form" prefix="form"%>
+<%@ taglib prefix="c" uri="http://j...content-available-to-author-only...n.com/jsp/jstl/core"%>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://w...content-available-to-author-only...3.org/TR/html4/loose.dtd">
+<html>
+
+<body style="background-color: lavender">
+	<h1>
+		<center>TMS: Tax Claim</center>
+	</h1>
+
+	<a href="/getTaxClaimFormPage?language=en">English</a>|
+	<a href="/getTaxClaimFormPage?language=de">German</a>|
+	<a href="/getTaxClaimFormPage?language=fr">French</a>
+	<!-- </align> -->
+ 
+	<form:form method="get" action="/calculateTax" 	modelAttribute="userClaim">
+
+		<table>
+
+			<tr>
+				<td id="id1"><label><spring:message code="label.employeeId" /></label></td>
+				<td id="id2"><form:input path="employeeId" name="employeeId" /></td>
+				<td id="id3"><form:errors path="employeeId"><spring:message code="error.employeeId"/></form:errors></td>
+			</tr>
+
+			<tr>
+				<td id="id4"><label><spring:message code="label.expenseType" /></label></td>
+				<td id="id5"><form:select path="expenseType" items="${expenseList}" name="expenseType" /></td>
+				<td id="id6"></td>
+			</tr>
+			
+			<tr>
+				<td id="id7"><label><spring:message code="label.expenseAmount" /></label></td>
+				<td id="id8"><form:input path="expenseAmt" name="expenseAmount" /></td>
+				<td id=id9><form:errors path="expenseAmt"><spring:message code="error.expenseAmount" /><br></form:errors>
+									<form:errors path="expenseAmt"><spring:message code="error.expenseAmount.numeric" /><br></form:errors>
+									<form:errors path="expenseAmt"><spring:message code="error.expenseAmount.negative" /><br></form:errors>
+				</td>
+			</tr>
+			
+			<tr>
+				<td><input type="Submit" name="calculateClaim" value="Calculate Claim" /></td>
+				<td><input type="reset" name="reset" value="Clear" /></td>
+			</tr>
+			
+			<!-- <tr>
+				<td><input type="reset" name="reset" value="Clear" /></td>
+				<td></td>
+			</tr> -->
+			
+		</table>
+	</form:form>
+	
+</body>
+</html>
+
+
+
+

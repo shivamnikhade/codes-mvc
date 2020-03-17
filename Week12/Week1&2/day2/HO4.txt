@@ -1,0 +1,1 @@
+SELECT DISTINCT designation FROM profile WHERE batch=2008 AND gender='FEMALE' ORDER BY designation ASC;

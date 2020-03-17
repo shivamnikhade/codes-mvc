@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Edit menu admin</title>
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+    </head>
+    <body>
+        <div class=header>
+            <header class="mainhead">
+                <span class="title">truYum</span>
+                <img class="logo" src="images/truyum-logo-light.png" height="50px" width="50px">
+                <div class="navmenu">
+                    <nav>
+                        <a class="navlink" href="menu-item-list-admin.html">Menu</a>
+                    </nav>
+                </div>
+            </header>
+        </div>
+        <caption>
+            <h3 class="content-title">Edit Menu Item</h3>
+        </caption>
+                <div class="editform">
+                    <form >
+                        <div class="form-group">
+                            <label for="pname">Name</label>
+                            <input type="text" class="form-control" id="prodname">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group2">
+                                <label for="price">Price (Rs.)</label>
+                                <input type="text" class="form-control" id="price">
+                            </div>
+                            <div class="form-group2" style="margin: 0px 20px;">
+                                <label for="active">Active</label><br>
+                                <div class="rad">
+                                    <input type="radio" id="active" checked><label>Yes</label>
+                                    <input type="radio" id="active"><label>No</label>
+                                </div>
+                            </div>
+                            <div class="form-group2">
+                                <label for="dateOfLaunch">Date of Launch</label>
+                                <input type="date" class="form-control" id="dateOfLaunch">
+                            </div>
+                            <div class="form-group2">
+                                <label for="category">Category</label>
+                                <select id="category" class="form-control">
+                                    <option selected>Choose</option>
+                                    <option value="Starters">Starters</option>
+                                    <option value="Main Course">Main Course</option>
+                                    <option value="Dessert">Dessert</option>
+                                    <option value="Drinks">Drinks</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="freeDelivery">
+                                <label class="form-check-label" for="gridCheck">
+                                    Free Delivery
+                                </label>
+                            </div>
+                            <button class="savebutton"
+                            type="submit" id="save">Save</button>
+                        </div>
+                        
+                    </form>
+                </div>
+                <footer>
+                    <div class="footer">
+                    Copyright &copy; 2019
+                    </div>
+                </footer>
+    </body>
+</html>

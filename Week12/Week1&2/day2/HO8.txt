@@ -1,0 +1,2 @@
+update role set name='CAD' where name='CADCAM';
+SET SQL_SAFE_UPDATES=0;
